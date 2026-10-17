@@ -1,0 +1,180 @@
+{
+  "info": {
+    "name": "ComicsStore — Miguel Ángel Ossa",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar en orden. La API debe estar conectada a Atlas. No incluye credenciales."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "autorId",
+      "value": ""
+    },
+    {
+      "key": "comicId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 — Estado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/"
+      }
+    },
+    {
+      "name": "02 — Listar autores",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/autores"
+      }
+    },
+    {
+      "name": "03 — Crear autor y guardar su ID",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/autores",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Autor Postman {{$timestamp}}\",\n  \"nacionalidad\": \"Colombiana\",\n  \"fechaNacimiento\": \"1990-01-01\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Creado\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"autorId\", pm.response.json()._id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 — Consultar autor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/autores/{{autorId}}"
+      }
+    },
+    {
+      "name": "05 — Crear cómic y guardar su ID",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/comics",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"titulo\": \"Comic Postman {{$timestamp}}\",\n  \"autor\": \"{{autorId}}\",\n  \"editorial\": \"Editorial Prueba\",\n  \"anioPublicacion\": 2020,\n  \"precio\": 15000,\n  \"stock\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Creado\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"comicId\", pm.response.json()._id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 — Listar cómics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/comics"
+      }
+    },
+    {
+      "name": "07 — Consultar cómic",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/comics/{{comicId}}"
+      }
+    },
+    {
+      "name": "08 — Filtrar editorial",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/comics?editorial=DC%20Comics"
+      }
+    },
+    {
+      "name": "09 — Filtrar autor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/comics?autor={{autorId}}"
+      }
+    },
+    {
+      "name": "10 — Rechazar autor inexistente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/comics",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"titulo\": \"Rechazado\",\n  \"autor\": \"000000000000000000000000\",\n  \"precio\": 10000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Autor inválido\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
